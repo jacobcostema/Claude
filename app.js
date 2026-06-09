@@ -22,7 +22,7 @@ const K_CURRENT = "pat_current_player"; // always per-device: who am I?
 const CATEGORIES = [
   { id: "pre_meal",  name: "Pre-Training Meal",  icon: "🍳", points: 10, requirePhoto: true, perDay: 1 },
   { id: "post_meal", name: "Post-Training Meal", icon: "🍗", points: 10, requirePhoto: true, perDay: 1 },
-  { id: "workout",   name: "Workout Session",    icon: "💪", points: 15, requirePhoto: true, perDay: 2 },
+  { id: "workout",   name: "Workout Session",    icon: "💪", points: 15, requirePhoto: true, perDay: 1 },
   { id: "protein",   name: "Protein Intake",     icon: "🥩", points: 10, requirePhoto: true, perDay: 1 },
   { id: "water",     name: "Water Bottle",       icon: "💧", points: 5,  requirePhoto: true, perDay: 4 },
   { id: "sleep",     name: "Sleep Check-In",     icon: "😴", points: 10, requirePhoto: true, perDay: 1 },

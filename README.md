@@ -54,7 +54,7 @@ photos and leaderboard.
 |---------------------|:------:|:-------:|:--------------:|
 | 🍳 Pre-Training Meal | 10     | 1       | ✅ |
 | 🍗 Post-Training Meal| 10     | 1       | ✅ |
-| 💪 Workout Session   | 15     | 2       | ✅ |
+| 💪 Workout Session   | 15     | 1       | ✅ |
 | 🥩 Protein Intake    | 10     | 1       | ✅ |
 | 💧 Water Bottle      | 5      | 4       | ✅ |
 | 😴 Sleep Check-In    | 10     | 1       | ✅ |
