@@ -437,6 +437,29 @@ function renderLeaderboard() {
   }).join("");
 }
 
+function groupRosterHTML() {
+  if (players.length === 0) return emptyMsg("No players yet.");
+  const byGroup = {};
+  for (const p of players) { const g = p.group || "Unassigned"; (byGroup[g] = byGroup[g] || []).push(p); }
+  const order = [
+    ...GROUP_LIST.filter((g) => byGroup[g]),
+    ...Object.keys(byGroup).filter((g) => !GROUP_LIST.includes(g) && g !== "Unassigned").sort(),
+  ];
+  if (byGroup["Unassigned"]) order.push("Unassigned");
+  return order.map((g) => {
+    const members = byGroup[g].slice().sort((a, b) => a.name.localeCompare(b.name));
+    return `<div class="grp-card">
+      <div class="grp-head">${escapeHtml(g)}<span class="grp-count">${members.length}</span></div>
+      <div class="grp-members">${members.map((m) => `<span class="grp-chip ${m.id === currentPlayerId ? "mine" : ""}">${escapeHtml(m.name)}</span>`).join("")}</div>
+    </div>`;
+  }).join("");
+}
+function renderGroupRoster() {
+  const html = groupRosterHTML();
+  const a = $("#groupRosterLog"); if (a) a.innerHTML = html;
+  const b = $("#groupRosterBoard"); if (b) b.innerHTML = html;
+}
+
 function emptyMsg(text) { return `<div class="empty">${escapeHtml(text)}</div>`; }
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
@@ -448,6 +471,7 @@ function renderAll() {
   renderToday();
   renderHistory();
   renderLeaderboard();
+  renderGroupRoster();
   $("#weekLabel").textContent = currentPlayer()
     ? `Tracking ${currentPlayer().name} · ${fmtWeek(0)}`
     : "Add yourself as a player to begin tracking the week.";

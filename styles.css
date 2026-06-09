@@ -299,6 +299,18 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 18px 16px; }
 
 .fullimg { width: 100%; border-radius: 14px; }
 
+/* ---------- Group roster ---------- */
+.group-roster { display: flex; flex-direction: column; gap: 10px; }
+.grp-card { background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow); }
+.grp-head {
+  font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px;
+  font-size: 13px; color: var(--accent); display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.grp-count { background: rgba(245,184,32,0.15); color: var(--accent); border-radius: 99px; font-size: 11px; padding: 1px 9px; font-family: var(--font-body); font-weight: 600; }
+.grp-members { display: flex; flex-wrap: wrap; gap: 6px; }
+.grp-chip { background: var(--card-2); border: 1px solid var(--line); border-radius: 99px; padding: 5px 11px; font-size: 12.5px; font-weight: 500; }
+.grp-chip.mine { background: rgba(245,184,32,0.16); border-color: rgba(245,184,32,0.55); color: var(--accent-2); font-weight: 700; }
+
 /* File input kept in the DOM (not display:none) so iOS reliably opens the picker. */
 .vh-input {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
