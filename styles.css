@@ -59,13 +59,13 @@ body {
   font-weight: 600;
   max-width: 150px;
 }
-.week-label { max-width: var(--maxw); margin: 6px auto 0; color: var(--muted); font-size: 12.5px; }
+.header-sub { display: flex; align-items: center; justify-content: space-between; gap: 10px; max-width: var(--maxw); margin: 6px auto 0; }
+.week-label { margin: 0; color: var(--muted); font-size: 12.5px; }
 .conn-pill {
-  position: absolute; top: 14px; right: 50%; transform: translateX(calc(var(--maxw) / 2 - 16px));
   font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 99px; white-space: nowrap;
+  flex-shrink: 0;
   display: none; /* shown by JS once status known */
 }
-@media (max-width: 592px) { .conn-pill { right: 16px; transform: none; top: 46px; } }
 .conn-pill.show { display: inline-block; }
 .conn-local { background: rgba(148,163,184,0.18); color: var(--muted); }
 .conn-connected { background: rgba(52,211,153,0.18); color: var(--good); }
