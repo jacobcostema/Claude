@@ -211,10 +211,12 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 16px; }
 .modal-preview { width: 100%; border-radius: 12px; margin: 12px 0; background: var(--bg-soft); }
 .field { margin: 12px 0; }
 .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-.field input[type="text"] {
+.field input[type="text"], .field textarea {
   width: 100%; background: var(--bg-soft); border: 1px solid var(--line);
   color: var(--text); border-radius: 10px; padding: 12px; font-size: 15px;
+  font-family: var(--font-body);
 }
+.field textarea { resize: vertical; line-height: 1.5; }
 .player-manage-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .player-manage-row span { flex: 1; font-weight: 600; }
 

@@ -376,7 +376,13 @@ function openManagePlayers() {
       <label for="newPlayerName">Add player</label>
       <input type="text" id="newPlayerName" placeholder="e.g. Jordan M." autocomplete="off" />
     </div>
-    <button class="btn btn-primary" id="addPlayerBtn">Add player</button>`;
+    <button class="btn btn-primary" id="addPlayerBtn">Add player</button>
+
+    <div class="field" style="margin-top:20px;">
+      <label for="bulkRoster">Import roster — one name per line (or comma-separated)</label>
+      <textarea id="bulkRoster" rows="6" placeholder="Jordan M.&#10;Alex P.&#10;Sam R."></textarea>
+    </div>
+    <button class="btn btn-ghost" id="importRosterBtn">Import list</button>`;
   showModal();
 
   $("#addPlayerBtn").onclick = async () => {
@@ -389,6 +395,24 @@ function openManagePlayers() {
     openManagePlayers();
   };
   $("#newPlayerName").addEventListener("keydown", (e) => { if (e.key === "Enter") $("#addPlayerBtn").click(); });
+
+  $("#importRosterBtn").onclick = async () => {
+    const names = $("#bulkRoster").value.split(/[\n,]/).map((s) => s.trim()).filter(Boolean);
+    if (!names.length) return;
+    const seen = new Set(players.map((p) => p.name.toLowerCase()));
+    let added = 0, skipped = 0, firstId = null;
+    for (const name of names) {
+      if (seen.has(name.toLowerCase())) { skipped++; continue; }
+      seen.add(name.toLowerCase());
+      const id = await storeAddPlayer(name);
+      if (!firstId) firstId = id;
+      added++;
+    }
+    if (!currentPlayerId && firstId) { currentPlayerId = firstId; save(K_CURRENT, currentPlayerId); }
+    renderAll();
+    openManagePlayers();
+    toast(`Imported ${added} player${added === 1 ? "" : "s"}${skipped ? `, skipped ${skipped} duplicate` : ""}`);
+  };
 
   $("#playerRows").onclick = async (e) => {
     const mk = e.target.closest("[data-makecurrent]");
