@@ -38,6 +38,19 @@ const DEFAULT_ROSTER = [
   "Natalie", "Sophia", "Hannah",
 ];
 
+// Lifting groups. Players are auto-assigned by name. Bump GROUP_VERSION to
+// re-apply these to everyone (e.g. after editing the assignments below).
+const GROUP_VERSION = 1;
+const GROUP_LIST = ["Group 1", "Group 2", "Group 3", "Group 4", "Group 5", "Group 6"];
+const GROUP_ASSIGNMENTS = {
+  "Lynette": "Group 1", "Mia": "Group 1", "Brynn": "Group 1", "Abigail": "Group 1",
+  "Astyn": "Group 2", "Kristina": "Group 2", "Natalie": "Group 2", "Grace": "Group 2",
+  "Ayla": "Group 3", "Ava": "Group 3", "Jayley": "Group 3", "Alexandria": "Group 3",
+  "Skyler": "Group 4", "Emma C": "Group 4", "Analiese": "Group 4", "Harumi": "Group 4",
+  "Breanna": "Group 5", "Emma E": "Group 5", "Adeleine": "Group 5", "Sophia": "Group 5",
+  "Naomi": "Group 6", "Sabrina": "Group 6", "Baylea": "Group 6", "Hannah": "Group 6",
+};
+
 // ---------- State ----------
 let players = [];
 let entries = [];
@@ -65,6 +78,7 @@ async function initStore() {
         (snap) => {
           players = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
           maybeSeedRoster();
+          applyGroupAssignments();
           renderAll();
         },
         () => setStatus("error", "● Sync error")
@@ -164,10 +178,35 @@ async function clearAllPlayers() {
   }
 }
 
-async function storeAddPlayer(name) {
-  const p = { name, createdAt: Date.now() };
+async function storeAddPlayer(name, group = "") {
+  const p = { name, group, createdAt: Date.now() };
   if (fb) { const ref = await fb.addDoc(fb.collection(fb.db, "players"), p); return ref.id; }
   const id = uid(); players.push({ id, ...p }); save(K_PLAYERS, players); renderAll(); return id;
+}
+
+async function storeSetPlayerGroup(id, group) {
+  if (fb) { await fb.updateDoc(fb.doc(fb.db, "players", id), { group }); return; }
+  const p = players.find((x) => x.id === id); if (p) p.group = group;
+  save(K_PLAYERS, players); renderAll();
+}
+
+// Apply the lifting-group assignments once (per GROUP_VERSION) to existing players.
+let groupsApplied = false;
+async function applyGroupAssignments() {
+  if (groupsApplied || !fb) return;
+  if (players.length < Object.keys(GROUP_ASSIGNMENTS).length) return; // wait for full roster
+  if (localStorage.getItem("pat_groups_applied") === String(GROUP_VERSION)) { groupsApplied = true; return; }
+  groupsApplied = true;
+  try {
+    for (const p of players) {
+      const want = GROUP_ASSIGNMENTS[p.name];
+      if (want && p.group !== want) await storeSetPlayerGroup(p.id, want);
+    }
+    localStorage.setItem("pat_groups_applied", String(GROUP_VERSION));
+  } catch (err) {
+    console.error("Group assignment failed:", err);
+    groupsApplied = false; // retry on next load
+  }
 }
 
 async function storeRemovePlayer(id) {
@@ -352,19 +391,32 @@ function renderLeaderboard() {
   const { start, end } = weekRange(boardWeekOffset);
   $("#boardWeekLabel").textContent = fmtWeek(boardWeekOffset);
 
-  const totals = players.map((p) => {
-    const wk = entries.filter((e) => e.playerId === p.id && e.timestamp >= start && e.timestamp < end);
-    return { id: p.id, name: p.name, points: wk.reduce((s, e) => s + e.points, 0), count: wk.length };
-  }).sort((a, b) => b.points - a.points || b.count - a.count);
+  // Weekly points & check-ins per player, then aggregate into lifting groups.
+  const pPts = {}, pCnt = {};
+  for (const e of entries) {
+    if (e.timestamp < start || e.timestamp >= end) continue;
+    pPts[e.playerId] = (pPts[e.playerId] || 0) + e.points;
+    pCnt[e.playerId] = (pCnt[e.playerId] || 0) + 1;
+  }
+  const groups = {};
+  for (const p of players) {
+    const g = p.group || "Unassigned";
+    const grp = (groups[g] = groups[g] || { name: g, points: 0, members: 0, checkins: 0 });
+    grp.members += 1;
+    grp.points += pPts[p.id] || 0;
+    grp.checkins += pCnt[p.id] || 0;
+  }
+  const myGroup = currentPlayer() ? (currentPlayer().group || "Unassigned") : null;
+  const ranked = Object.values(groups).sort((a, b) => b.points - a.points || b.checkins - a.checkins);
 
   const board = $("#leaderboard");
-  if (totals.length === 0) { board.innerHTML = emptyMsg("No players yet."); }
+  if (ranked.length === 0) { board.innerHTML = emptyMsg("No groups yet."); }
   else {
     const medals = ["🥇", "🥈", "🥉"];
-    board.innerHTML = totals.map((t, i) => `
-      <div class="lb-row ${t.id === currentPlayerId ? "me" : ""}">
+    board.innerHTML = ranked.map((t, i) => `
+      <div class="lb-row ${t.name === myGroup ? "me" : ""}">
         <div class="lb-rank">${medals[i] || i + 1}</div>
-        <div class="lb-name">${escapeHtml(t.name)}<small>${t.count} check-in${t.count === 1 ? "" : "s"}</small></div>
+        <div class="lb-name">${escapeHtml(t.name)}<small>${t.members} athlete${t.members === 1 ? "" : "s"} · ${t.checkins} check-in${t.checkins === 1 ? "" : "s"}</small></div>
         <div class="lb-pts">${t.points}<small> pts</small></div>
       </div>`).join("");
   }
@@ -460,9 +512,16 @@ async function deleteEntry(id) {
 
 // ---------- Player management ----------
 function openManagePlayers() {
-  const rows = players.map((p) => `
+  const groupOpts = Array.from(new Set([...GROUP_LIST, ...players.map((p) => p.group).filter(Boolean)]));
+  const groupSelect = (p) => `<select class="row-group" data-setgroup="${p.id}" title="Lifting group">
+      <option value="" ${!p.group ? "selected" : ""}>—</option>
+      ${groupOpts.map((g) => `<option value="${escapeHtml(g)}" ${p.group === g ? "selected" : ""}>${escapeHtml(g)}</option>`).join("")}
+    </select>`;
+  const sorted = [...players].sort((a, b) => (a.group || "~").localeCompare(b.group || "~") || a.name.localeCompare(b.name));
+  const rows = sorted.map((p) => `
     <div class="player-manage-row">
       <span>${escapeHtml(p.name)}</span>
+      ${groupSelect(p)}
       <button class="icon-btn" data-makecurrent="${p.id}" title="This is me">👤</button>
       <button class="icon-btn" data-removeplayer="${p.id}" title="Remove">🗑️</button>
     </div>`).join("") || `<p class="hint">No players yet — add the first athlete below.</p>`;
@@ -524,6 +583,11 @@ function openManagePlayers() {
     }
   };
 
+  $("#playerRows").onchange = async (e) => {
+    const g = e.target.closest("[data-setgroup]");
+    if (g) { await storeSetPlayerGroup(g.dataset.setgroup, g.value); toast("Group updated"); }
+  };
+
   $("#playerRows").onclick = async (e) => {
     const mk = e.target.closest("[data-makecurrent]");
     const rm = e.target.closest("[data-removeplayer]");
@@ -552,13 +616,16 @@ function exportCSV() {
     (weeks[ws] = weeks[ws] || []).push(e);
   }
 
-  const rows = [["Week Start", "Week End", "Rank", "Player", "Points", "Check-ins", "Winner"]];
+  const groupOf = (pid) => { const p = players.find((pl) => pl.id === pid); return p ? (p.group || "Unassigned") : "Unassigned"; };
+  const memberCount = {};
+  for (const p of players) { const g = p.group || "Unassigned"; memberCount[g] = (memberCount[g] || 0) + 1; }
+
+  const rows = [["Week Start", "Week End", "Rank", "Group", "Athletes", "Points", "Check-ins", "Winner"]];
   Object.keys(weeks).map(Number).sort((a, b) => a - b).forEach((ws) => {
     const totals = {};
     for (const e of weeks[ws]) {
-      const p = players.find((pl) => pl.id === e.playerId);
-      const name = p ? p.name : "(removed player)";
-      const t = (totals[e.playerId] = totals[e.playerId] || { name, points: 0, count: 0 });
+      const g = groupOf(e.playerId);
+      const t = (totals[g] = totals[g] || { name: g, points: 0, count: 0 });
       t.points += e.points; t.count += 1;
     }
     const ranked = Object.values(totals).sort((a, b) => b.points - a.points || b.count - a.count);
@@ -567,7 +634,7 @@ function exportCSV() {
     const weDate = new Date(ws); weDate.setDate(weDate.getDate() + 6);
     const fmt = (d) => d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
     ranked.forEach((t, i) => {
-      rows.push([fmt(wsDate), fmt(weDate), i + 1, t.name, t.points, t.count,
+      rows.push([fmt(wsDate), fmt(weDate), i + 1, t.name, memberCount[t.name] || 0, t.points, t.count,
         (t.points === top && top > 0) ? "WINNER" : ""]);
     });
   });

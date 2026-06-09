@@ -277,7 +277,11 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 18px 16px; }
 }
 .field textarea { resize: vertical; line-height: 1.5; }
 .player-manage-row { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--line-soft); }
-.player-manage-row span { flex: 1; font-weight: 600; }
+.player-manage-row span { flex: 1; font-weight: 600; min-width: 0; }
+.row-group {
+  background: var(--card-2); color: var(--text); border: 1px solid var(--line);
+  border-radius: 8px; padding: 6px 7px; font-size: 12px; font-family: var(--font-body); max-width: 104px;
+}
 
 .photo-required-note { font-size: 12px; color: var(--gold); margin-top: 8px; }
 
