@@ -25,9 +25,18 @@ const CATEGORIES = [
   { id: "workout",   name: "Workout Session",    icon: "💪", points: 15, requirePhoto: true, perDay: 1 },
   { id: "protein",   name: "Protein Intake",     icon: "🥩", points: 10, requirePhoto: true, perDay: 1, note: "Goal: 1g of protein per lb of body weight" },
   { id: "water",     name: "Water Bottle",       icon: "💧", points: 3,  requirePhoto: true, perDay: 4, note: "1 log = one 32 oz bottle finished" },
-  { id: "sleep",     name: "Sleep Check-In",     icon: "😴", points: 10, requirePhoto: true, perDay: 1, note: "7.5 hr minimum — screenshot your sleep tracker or phone bedtime/alarm" },
+  { id: "sleep",     name: "Sleep Check-In",     icon: "😴", points: 10, requirePhoto: true, perDay: 1, allowGallery: true, note: "7.5 hr minimum — screenshot your sleep tracker or phone bedtime/alarm" },
 ];
 const CAT_BY_ID = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]));
+
+// Team roster — auto-added to the shared database the first time the connected
+// app loads with no players yet. (Two Emmas disambiguated by last initial.)
+const DEFAULT_ROSTER = [
+  "Lynette", "Mia", "Kristina", "Ava", "Emma C", "Astyn", "Adeleine",
+  "Baylea", "Ayla", "Skyler", "Emma E", "Jayley", "Analiese", "Breanna",
+  "Alexandria", "Harumi", "Naomi", "Abigail", "Brynn", "Grace", "Sabrina",
+  "Natalie", "Sophia", "Hannah",
+];
 
 // ---------- State ----------
 let players = [];
@@ -53,7 +62,11 @@ async function initStore() {
       setStatus("connected", "● Live");
       fsMod.onSnapshot(
         fsMod.collection(db, "players"),
-        (snap) => { players = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderAll(); },
+        (snap) => {
+          players = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          maybeSeedRoster();
+          renderAll();
+        },
         () => setStatus("error", "● Sync error")
       );
       fsMod.onSnapshot(
@@ -73,6 +86,18 @@ async function initStore() {
   entries = load(K_ENTRIES, []);
   setStatus("local", "● Local only");
   renderAll();
+}
+
+// One-time auto-seed of the team roster when the shared DB is empty.
+let seedAttempted = false;
+async function maybeSeedRoster() {
+  if (seedAttempted || !fb) return;
+  seedAttempted = true;
+  if (players.length > 0) return;                       // roster already exists
+  if (localStorage.getItem("pat_roster_seeded")) return; // this device already seeded
+  localStorage.setItem("pat_roster_seeded", "1");
+  for (const name of DEFAULT_ROSTER) await storeAddPlayer(name);
+  toast(`Loaded ${DEFAULT_ROSTER.length}-player roster`);
 }
 
 async function storeAddPlayer(name) {
@@ -319,8 +344,16 @@ function startCheckIn(catId) {
   if (!currentPlayerId) { toast("Pick your player first"); openManagePlayers(); return; }
   pendingCategoryId = catId;
   const cat = CAT_BY_ID[catId];
-  if (cat.requirePhoto) { $("#photoInput").value = ""; $("#photoInput").click(); }
-  else recordEntry(catId, null);
+  if (cat.requirePhoto) {
+    const input = $("#photoInput");
+    input.value = "";
+    // Gallery categories (e.g. sleep) need the full picker; others force the live camera.
+    if (cat.allowGallery) input.removeAttribute("capture");
+    else input.setAttribute("capture", "environment");
+    input.click();
+  } else {
+    recordEntry(catId, null);
+  }
 }
 
 async function onPhotoChosen(file) {
