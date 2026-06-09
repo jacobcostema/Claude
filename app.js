@@ -489,4 +489,10 @@ function init() {
   renderAll();
 }
 
-document.addEventListener("DOMContentLoaded", init);
+// The module is injected dynamically (for cache-busting), so DOMContentLoaded
+// may have already fired by the time this runs — start immediately if so.
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}
