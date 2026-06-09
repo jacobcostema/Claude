@@ -29,11 +29,22 @@
     </div>
   </header>
 
+  <div id="ticker" class="ticker hidden" aria-label="Recent activity"></div>
+
   <main id="main">
     <!-- ============ LOG TAB ============ -->
     <section id="tab-log" class="tab active">
       <h2 class="section-title">Log a check-in</h2>
       <p class="hint">Tap a category, snap a photo to prove it, and earn your points.</p>
+      <details class="how-card" open>
+        <summary>How points work</summary>
+        <ul>
+          <li>Pick a category and upload the required <b>photo proof</b> — no photo, no points.</li>
+          <li>Points are tallied <b>Monday–Sunday</b> and added to your <b>lifting group's</b> total.</li>
+          <li>Each card shows its points and how many times a day it counts (e.g. Water ×4).</li>
+          <li>The board <b>resets every Monday</b> — fresh shot at the top spot each week.</li>
+        </ul>
+      </details>
       <div id="categoryGrid" class="category-grid"></div>
       <h3 class="subsection-title">Competition groups</h3>
       <div id="groupRosterLog" class="group-roster"></div>

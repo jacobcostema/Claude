@@ -460,6 +460,25 @@ function renderGroupRoster() {
   const b = $("#groupRosterBoard"); if (b) b.innerHTML = html;
 }
 
+// Scrolling ticker of the 5 most recent check-ins (who · what · when).
+function renderTicker() {
+  const t = $("#ticker");
+  if (!t) return;
+  const recent = entries.slice().sort((a, b) => b.timestamp - a.timestamp).slice(0, 5);
+  if (recent.length === 0) { t.classList.add("hidden"); t.innerHTML = ""; return; }
+  t.classList.remove("hidden");
+  const items = recent.map((e) => {
+    const c = CAT_BY_ID[e.category] || { name: e.category, icon: "•" };
+    const p = players.find((pl) => pl.id === e.playerId);
+    const who = p ? p.name : "Someone";
+    return `<span class="ticker-item"><span class="ti-ic">${c.icon}</span><span class="ti-who">${escapeHtml(who)}</span> ${escapeHtml(c.name)} <span class="ti-when">${timeAgo(e.timestamp)}</span></span>`;
+  });
+  const sep = '<span class="ticker-sep">•</span>';
+  const seq = items.join(sep);
+  // Duplicated sequence enables a seamless looping marquee (animates to -50%).
+  t.innerHTML = `<div class="ticker-track">${seq}${sep}${seq}${sep}</div>`;
+}
+
 function emptyMsg(text) { return `<div class="empty">${escapeHtml(text)}</div>`; }
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
@@ -472,6 +491,7 @@ function renderAll() {
   renderHistory();
   renderLeaderboard();
   renderGroupRoster();
+  renderTicker();
   $("#weekLabel").textContent = currentPlayer()
     ? `Tracking ${currentPlayer().name} · ${fmtWeek(0)}`
     : "Add yourself as a player to begin tracking the week.";

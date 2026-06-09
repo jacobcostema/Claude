@@ -299,6 +299,37 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 18px 16px; }
 
 .fullimg { width: 100%; border-radius: 14px; }
 
+/* ---------- Recent-activity ticker ---------- */
+.ticker {
+  max-width: var(--maxw); margin: 0 auto; overflow: hidden;
+  border-bottom: 1px solid var(--line-soft); background: rgba(0,0,0,0.18);
+}
+.ticker.hidden { display: none; }
+.ticker-track { display: inline-flex; align-items: center; white-space: nowrap; animation: ticker 26s linear infinite; will-change: transform; }
+.ticker:active .ticker-track { animation-play-state: paused; }
+.ticker-item { display: inline-flex; align-items: center; gap: 7px; padding: 9px 14px; font-size: 12.5px; }
+.ticker-item .ti-ic { font-size: 14px; }
+.ticker-item .ti-who { font-weight: 700; color: var(--accent-2); }
+.ticker-item .ti-when { color: var(--muted); }
+.ticker-sep { color: var(--line); padding: 0 2px; }
+@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .ticker { overflow-x: auto; }
+  .ticker-track { animation: none; }
+}
+
+/* ---------- How points work ---------- */
+.how-card { background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px; padding: 0 14px; margin-bottom: 16px; box-shadow: var(--shadow); }
+.how-card summary {
+  cursor: pointer; padding: 12px 0; list-style: none; display: flex; align-items: center; justify-content: space-between;
+  font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.7px; font-size: 13px; color: var(--accent); font-weight: 600;
+}
+.how-card summary::-webkit-details-marker { display: none; }
+.how-card summary::after { content: "+"; color: var(--muted); font-size: 19px; line-height: 1; }
+.how-card[open] summary::after { content: "–"; }
+.how-card ul { margin: 0 0 14px; padding-left: 18px; color: var(--muted); font-size: 13px; line-height: 1.65; }
+.how-card ul b { color: var(--text); font-weight: 600; }
+
 /* ---------- Group roster ---------- */
 .group-roster { display: flex; flex-direction: column; gap: 10px; }
 .grp-card { background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow); }
