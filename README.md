@@ -5,23 +5,41 @@ summer. Players log daily check-ins across nutrition, training, hydration and
 sleep — and **must upload a photo as proof to bank the points**. A weekly
 leaderboard keeps everyone competing.
 
-This is a **zero-dependency prototype**: plain HTML/CSS/JS, no build step, no
-server required. Data is stored in the browser via `localStorage`, so you can
-open it and start using it immediately.
+The app runs as a static site (no build step) and stores shared data in
+**Firebase Firestore**, so every player logs into ONE combined leaderboard and
+photos sync to all phones in real time. Until Firebase keys are added it falls
+back to **local mode** (data per-phone) so it still works for testing.
 
-## Quick start
+## 🔗 The link to send players
 
-Just open `index.html` in a browser. For phones, serve it on your network:
+Once deployed, the app is live at:
 
-```bash
-# from this folder
-python3 -m http.server 8000
-# then visit http://<your-computer-ip>:8000 on your phone
+```
+https://jacobcostema.github.io/Claude/
 ```
 
-1. Tap the ⚙️ in the header to add your players.
-2. Use the **Log** tab to record a check-in — pick a category, snap the photo, confirm.
-3. Check **Today** for daily progress, **Board** for the weekly leaderboard, and **History** for the full photo log.
+(Published automatically by GitHub Actions on every push — see
+`.github/workflows/deploy.yml`.)
+
+## ⚙️ One-time setup to turn on the shared leaderboard (~5 min)
+
+1. Go to <https://console.firebase.google.com> → **Add project** (any name, you
+   can skip Google Analytics).
+2. In the project, click the **`</>` (web)** icon to "Add app", give it a
+   nickname, register it. Firebase shows a `firebaseConfig = { ... }` block.
+3. Copy each value into the matching field in **`config.js`** in this repo.
+4. In the left menu: **Build → Firestore Database → Create database**. Start in
+   **test mode** to get going (lock it down later — see "Securing it" below).
+5. Commit `config.js`. GitHub Actions redeploys; the link now shares data.
+
+After step 5, every phone that opens the link sees the same players, check-ins,
+photos and leaderboard.
+
+### How players use it
+- Open the link, tap ⚙️ → add themselves (or you pre-add the whole roster).
+- On their own phone they tap 👤 next to their name to mark "this is me".
+- **Log** tab → pick a category → snap the required photo → confirm → points banked.
+- **Board** tab → the shared weekly leaderboard.
 
 ## Categories (and points)
 
@@ -34,42 +52,27 @@ python3 -m http.server 8000
 | 💧 Water Bottle      | 5      | 4       | ✅ |
 | 😴 Sleep Check-In    | 10     | 1       | ✅ |
 
-Tweak these in the `CATEGORIES` array at the top of `app.js` — change points,
-add categories, set how many times per day each can be logged, or toggle the
-photo requirement.
+Edit the `CATEGORIES` array at the top of `app.js` to change points, add
+categories, set per-day limits, or toggle the photo requirement.
 
 ## Features
+- **Photo-gated points** — photos are compressed/resized client-side (≈800px,
+  JPEG) so they stay well under Firestore's 1 MB/doc limit, no separate photo
+  storage/billing needed.
+- **Real-time shared leaderboard** with week navigation (Monday-based weeks).
+- **Live connection pill** in the header: `● Live` (shared) vs `● Local only`.
+- **Per-player category breakdown**, **Today** progress bar, full **History**.
 
-- **Photo-gated points** — photos are compressed/resized client-side before storage so you don't blow past the localStorage limit.
-- **Weekly leaderboard** with week navigation (Monday-based weeks).
-- **Per-player category breakdown** so you can see where each athlete is strong or slacking.
-- **Today view** with a daily points-progress bar.
-- **Full history** with tappable photo proof.
-- Works offline; installable feel on mobile.
+## Securing it (recommended before wide rollout)
 
-## Current limitations (it's a starting point)
-
-- Data lives in **one browser** — players each have their own local copy; it is
-  not yet shared across devices. The leaderboard reflects whatever was logged on
-  that device.
-- No authentication.
-
-## Going multi-device (recommended next step)
-
-To make this a true shared tracker (everyone logs on their phone, one combined
-leaderboard), swap the `load`/`save` functions in `app.js` for a backend. Good
-no-/low-code options:
-
-- **Firebase** (Firestore + Storage for photos) — fastest path to real-time shared data.
-- **Supabase** — Postgres + storage, generous free tier.
-- A small **Node/Express + SQLite** API if you want to self-host.
-
-The data model is intentionally simple — `players` and `entries` (each entry
-has `playerId`, `category`, `points`, `photo`, `timestamp`) — so it maps
-directly onto any of these.
+Test mode lets anyone read/write. For a roster of teenagers that's usually fine
+short-term, but to lock it down go to **Firestore → Rules**. A simple option is
+to keep it open only to your group, or add Firebase Anonymous Auth and require
+`request.auth != null`. Ask and I can wire that up.
 
 ## Files
-
-- `index.html` — markup and tab structure
+- `index.html` — markup, tabs, header
 - `styles.css` — mobile-first dark theme
-- `app.js` — all logic (state, rendering, photo handling, leaderboard)
+- `app.js` — logic + data layer (Firestore with localStorage fallback)
+- `config.js` — paste your Firebase keys here
+- `.github/workflows/deploy.yml` — auto-publish to GitHub Pages
