@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Accountability Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-row">
+      <h1 class="logo">🏆 Accountability</h1>
+      <div class="player-switch">
+        <select id="playerSelect" aria-label="Select player"></select>
+        <button id="managePlayersBtn" class="icon-btn" title="Manage players">⚙️</button>
+      </div>
+    </div>
+    <p id="weekLabel" class="week-label"></p>
+  </header>
+
+  <main id="main">
+    <!-- ============ LOG TAB ============ -->
+    <section id="tab-log" class="tab active">
+      <h2 class="section-title">Log a check-in</h2>
+      <p class="hint">Tap a category, snap a photo to prove it, and earn your points.</p>
+      <div id="categoryGrid" class="category-grid"></div>
+    </section>
+
+    <!-- ============ TODAY TAB ============ -->
+    <section id="tab-today" class="tab">
+      <h2 class="section-title">Today's progress</h2>
+      <div id="todayProgress" class="today-progress"></div>
+      <h3 class="subsection-title">Today's check-ins</h3>
+      <div id="todayEntries" class="entry-list"></div>
+    </section>
+
+    <!-- ============ LEADERBOARD TAB ============ -->
+    <section id="tab-board" class="tab">
+      <div class="board-head">
+        <h2 class="section-title">Leaderboard</h2>
+        <div class="week-nav">
+          <button id="prevWeek" class="icon-btn">‹</button>
+          <span id="boardWeekLabel"></span>
+          <button id="nextWeek" class="icon-btn">›</button>
+        </div>
+      </div>
+      <div id="leaderboard" class="leaderboard"></div>
+      <h3 class="subsection-title">Category breakdown (you)</h3>
+      <div id="categoryBreakdown" class="breakdown"></div>
+    </section>
+
+    <!-- ============ HISTORY TAB ============ -->
+    <section id="tab-history" class="tab">
+      <h2 class="section-title">Your history</h2>
+      <div id="historyEntries" class="entry-list"></div>
+    </section>
+  </main>
+
+  <nav class="tabbar">
+    <button class="tabbtn active" data-tab="log"><span>➕</span>Log</button>
+    <button class="tabbtn" data-tab="today"><span>📅</span>Today</button>
+    <button class="tabbtn" data-tab="board"><span>🏅</span>Board</button>
+    <button class="tabbtn" data-tab="history"><span>📜</span>History</button>
+  </nav>
+
+  <!-- Hidden file input used for photo capture -->
+  <input type="file" id="photoInput" accept="image/*" capture="environment" hidden />
+
+  <!-- ============ MODAL ============ -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <div id="modalBody"></div>
+      <button id="modalClose" class="btn btn-ghost">Close</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
