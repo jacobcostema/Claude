@@ -106,8 +106,13 @@ async function maybeSeedRoster() {
   }
 }
 
+// Guard against double-taps adding the roster twice (the cause of duplicates).
+let rosterBusy = false;
+
 // Manual roster load (button in Players screen). Dedupe-aware, reports result.
 async function loadDefaultRoster() {
+  if (rosterBusy) return;
+  rosterBusy = true;
   const seen = new Set(players.map((p) => p.name.toLowerCase()));
   let added = 0, skipped = 0, firstId = null;
   try {
@@ -126,6 +131,36 @@ async function loadDefaultRoster() {
   } catch (err) {
     console.error("Roster load failed:", err);
     toast("Load failed — is Firestore database created?");
+  } finally {
+    rosterBusy = false;
+  }
+}
+
+// Wipe ALL players and check-ins to start fresh.
+async function clearAllPlayers() {
+  if (rosterBusy) return;
+  if (!confirm("Delete ALL players and their check-ins? This cannot be undone.")) return;
+  rosterBusy = true;
+  toast("Clearing…");
+  try {
+    if (fb) {
+      const ps = await fb.getDocs(fb.collection(fb.db, "players"));
+      await Promise.all(ps.docs.map((d) => fb.deleteDoc(fb.doc(fb.db, "players", d.id))));
+      const es = await fb.getDocs(fb.collection(fb.db, "entries"));
+      await Promise.all(es.docs.map((d) => fb.deleteDoc(fb.doc(fb.db, "entries", d.id))));
+    } else {
+      players = []; entries = []; save(K_PLAYERS, players); save(K_ENTRIES, entries);
+    }
+    currentPlayerId = null; save(K_CURRENT, null);
+    localStorage.removeItem("pat_roster_seeded");
+    renderAll();
+    openManagePlayers();
+    toast("All players cleared — tap Load roster once");
+  } catch (err) {
+    console.error("Clear failed:", err);
+    toast("Clear failed — try again");
+  } finally {
+    rosterBusy = false;
   }
 }
 
@@ -447,10 +482,12 @@ function openManagePlayers() {
       <textarea id="bulkRoster" rows="6" placeholder="Jordan M.&#10;Alex P.&#10;Sam R."></textarea>
     </div>
     <button class="btn btn-ghost" id="importRosterBtn">Import list</button>
-    <button class="btn btn-ghost" id="loadRosterBtn" style="margin-top:10px;">⬆️ Load full team roster (${DEFAULT_ROSTER.length})</button>`;
+    <button class="btn btn-ghost" id="loadRosterBtn" style="margin-top:10px;">⬆️ Load full team roster (${DEFAULT_ROSTER.length})</button>
+    <button class="btn btn-danger" id="clearPlayersBtn" style="margin-top:10px;">🗑️ Clear ALL players &amp; start fresh</button>`;
   showModal();
 
   $("#loadRosterBtn").onclick = loadDefaultRoster;
+  $("#clearPlayersBtn").onclick = clearAllPlayers;
 
   $("#addPlayerBtn").onclick = async () => {
     const name = $("#newPlayerName").value.trim();
@@ -464,21 +501,27 @@ function openManagePlayers() {
   $("#newPlayerName").addEventListener("keydown", (e) => { if (e.key === "Enter") $("#addPlayerBtn").click(); });
 
   $("#importRosterBtn").onclick = async () => {
+    if (rosterBusy) return;
     const names = $("#bulkRoster").value.split(/[\n,]/).map((s) => s.trim()).filter(Boolean);
     if (!names.length) return;
+    rosterBusy = true;
     const seen = new Set(players.map((p) => p.name.toLowerCase()));
     let added = 0, skipped = 0, firstId = null;
-    for (const name of names) {
-      if (seen.has(name.toLowerCase())) { skipped++; continue; }
-      seen.add(name.toLowerCase());
-      const id = await storeAddPlayer(name);
-      if (!firstId) firstId = id;
-      added++;
+    try {
+      for (const name of names) {
+        if (seen.has(name.toLowerCase())) { skipped++; continue; }
+        seen.add(name.toLowerCase());
+        const id = await storeAddPlayer(name);
+        if (!firstId) firstId = id;
+        added++;
+      }
+      if (!currentPlayerId && firstId) { currentPlayerId = firstId; save(K_CURRENT, currentPlayerId); }
+      renderAll();
+      openManagePlayers();
+      toast(`Imported ${added} player${added === 1 ? "" : "s"}${skipped ? `, skipped ${skipped} duplicate` : ""}`);
+    } finally {
+      rosterBusy = false;
     }
-    if (!currentPlayerId && firstId) { currentPlayerId = firstId; save(K_CURRENT, currentPlayerId); }
-    renderAll();
-    openManagePlayers();
-    toast(`Imported ${added} player${added === 1 ? "" : "s"}${skipped ? `, skipped ${skipped} duplicate` : ""}`);
   };
 
   $("#playerRows").onclick = async (e) => {
