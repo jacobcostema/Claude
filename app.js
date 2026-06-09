@@ -433,6 +433,55 @@ function openManagePlayers() {
   };
 }
 
+// ---------- Export weekly records to CSV ----------
+function exportCSV() {
+  if (!entries.length) { toast("No check-ins to export yet"); return; }
+
+  // Group every entry into its Monday-based week.
+  const weeks = {};
+  for (const e of entries) {
+    const ws = weekStart(e.timestamp).getTime();
+    (weeks[ws] = weeks[ws] || []).push(e);
+  }
+
+  const rows = [["Week Start", "Week End", "Rank", "Player", "Points", "Check-ins", "Winner"]];
+  Object.keys(weeks).map(Number).sort((a, b) => a - b).forEach((ws) => {
+    const totals = {};
+    for (const e of weeks[ws]) {
+      const p = players.find((pl) => pl.id === e.playerId);
+      const name = p ? p.name : "(removed player)";
+      const t = (totals[e.playerId] = totals[e.playerId] || { name, points: 0, count: 0 });
+      t.points += e.points; t.count += 1;
+    }
+    const ranked = Object.values(totals).sort((a, b) => b.points - a.points || b.count - a.count);
+    const top = ranked[0] ? ranked[0].points : 0;
+    const wsDate = new Date(ws);
+    const weDate = new Date(ws); weDate.setDate(weDate.getDate() + 6);
+    const fmt = (d) => d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    ranked.forEach((t, i) => {
+      rows.push([fmt(wsDate), fmt(weDate), i + 1, t.name, t.points, t.count,
+        (t.points === top && top > 0) ? "WINNER" : ""]);
+    });
+  });
+
+  const csv = rows.map((r) => r.map(csvCell).join(",")).join("\r\n");
+  const stamp = new Date().toISOString().slice(0, 10);
+  downloadFile(`accountability-records-${stamp}.csv`, csv, "text/csv;charset=utf-8");
+  toast("Records exported");
+}
+function csvCell(v) {
+  const s = String(v);
+  return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function downloadFile(name, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
 // ---------- Modal ----------
 function showModal() { $("#modal").classList.remove("hidden"); }
 function hideModal() { $("#modal").classList.add("hidden"); }
@@ -477,6 +526,7 @@ function init() {
   $("#managePlayersBtn").addEventListener("click", openManagePlayers);
   $("#prevWeek").addEventListener("click", () => { boardWeekOffset--; renderLeaderboard(); });
   $("#nextWeek").addEventListener("click", () => { if (boardWeekOffset < 0) { boardWeekOffset++; renderLeaderboard(); } });
+  $("#exportBtn").addEventListener("click", exportCSV);
   $("#main").addEventListener("click", (e) => {
     const del = e.target.closest("[data-del]");
     const photo = e.target.closest("[data-photo]");
