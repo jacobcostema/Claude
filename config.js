@@ -1,28 +1,21 @@
 /* ============================================================
    FIREBASE CONNECTION
    ------------------------------------------------------------
-   Paste your Firebase web-app config below to turn on the shared
-   leaderboard (everyone logs into the SAME data, photos sync to
-   all phones).
+   These keys connect the app to your shared Firestore database
+   so every player logs into ONE leaderboard. A Firebase web
+   apiKey is not a secret — it's safe in client-side code; your
+   data is protected by Firestore security rules.
 
-   How to get these values (~5 minutes, free):
-     1. Go to https://console.firebase.google.com → "Add project".
-     2. Once created, click the </> (web) icon to "Add app".
-     3. Firebase shows a `firebaseConfig = { ... }` block — copy
-        each value into the matching field below.
-     4. In the left menu open "Build → Firestore Database" →
-        "Create database" → start in TEST mode (fine to start;
-        see README for locking it down later).
-
-   Until real keys are pasted, the app runs in LOCAL mode
-   (data stays on each phone — no shared leaderboard).
+   To change projects, replace the values below with the block
+   from: Firebase console → ⚙️ Project settings → Your apps → Config.
    ============================================================ */
 
 export const firebaseConfig = {
-  apiKey: "PASTE_API_KEY",
-  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_PROJECT_ID",
-  storageBucket: "PASTE_PROJECT_ID.appspot.com",
-  messagingSenderId: "PASTE_SENDER_ID",
-  appId: "PASTE_APP_ID",
+  apiKey: "AIzaSyDXY05D_GA7YxYThpnwEzVc5jX_41dYZjo",
+  authDomain: "tracker-7676c.firebaseapp.com",
+  projectId: "tracker-7676c",
+  storageBucket: "tracker-7676c.firebasestorage.app",
+  messagingSenderId: "82524910690",
+  appId: "1:82524910690:web:c749f818394a443cf6cd3b",
+  measurementId: "G-3HCSD47VTM",
 };
