@@ -93,11 +93,40 @@ let seedAttempted = false;
 async function maybeSeedRoster() {
   if (seedAttempted || !fb) return;
   seedAttempted = true;
-  if (players.length > 0) return;                       // roster already exists
+  if (players.length > 0) return;                        // roster already exists
   if (localStorage.getItem("pat_roster_seeded")) return; // this device already seeded
-  localStorage.setItem("pat_roster_seeded", "1");
-  for (const name of DEFAULT_ROSTER) await storeAddPlayer(name);
-  toast(`Loaded ${DEFAULT_ROSTER.length}-player roster`);
+  try {
+    for (const name of DEFAULT_ROSTER) await storeAddPlayer(name);
+    localStorage.setItem("pat_roster_seeded", "1");      // only mark done on success
+    toast(`Loaded ${DEFAULT_ROSTER.length}-player roster`);
+  } catch (err) {
+    console.error("Roster seed failed:", err);
+    setStatus("error", "● Sync error");
+    toast("Couldn't reach database — check Firestore setup");
+  }
+}
+
+// Manual roster load (button in Players screen). Dedupe-aware, reports result.
+async function loadDefaultRoster() {
+  const seen = new Set(players.map((p) => p.name.toLowerCase()));
+  let added = 0, skipped = 0, firstId = null;
+  try {
+    for (const name of DEFAULT_ROSTER) {
+      if (seen.has(name.toLowerCase())) { skipped++; continue; }
+      seen.add(name.toLowerCase());
+      const id = await storeAddPlayer(name);
+      if (!firstId) firstId = id;
+      added++;
+    }
+    localStorage.setItem("pat_roster_seeded", "1");
+    if (!currentPlayerId && firstId) { currentPlayerId = firstId; save(K_CURRENT, currentPlayerId); }
+    renderAll();
+    openManagePlayers();
+    toast(`Loaded ${added} player${added === 1 ? "" : "s"}${skipped ? `, skipped ${skipped}` : ""}`);
+  } catch (err) {
+    console.error("Roster load failed:", err);
+    toast("Load failed — is Firestore database created?");
+  }
 }
 
 async function storeAddPlayer(name) {
@@ -417,8 +446,11 @@ function openManagePlayers() {
       <label for="bulkRoster">Import roster — one name per line (or comma-separated)</label>
       <textarea id="bulkRoster" rows="6" placeholder="Jordan M.&#10;Alex P.&#10;Sam R."></textarea>
     </div>
-    <button class="btn btn-ghost" id="importRosterBtn">Import list</button>`;
+    <button class="btn btn-ghost" id="importRosterBtn">Import list</button>
+    <button class="btn btn-ghost" id="loadRosterBtn" style="margin-top:10px;">⬆️ Load full team roster (${DEFAULT_ROSTER.length})</button>`;
   showModal();
+
+  $("#loadRosterBtn").onclick = loadDefaultRoster;
 
   $("#addPlayerBtn").onclick = async () => {
     const name = $("#newPlayerName").value.trim();
