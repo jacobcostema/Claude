@@ -77,8 +77,8 @@
     <button class="tabbtn" data-tab="history"><span>📜</span>History</button>
   </nav>
 
-  <!-- Hidden file input used for photo capture -->
-  <input type="file" id="photoInput" accept="image/*" capture="environment" hidden />
+  <!-- File input for photo capture (kept in layout, not display:none, so iOS reliably opens the picker) -->
+  <input type="file" id="photoInput" accept="image/*" capture="environment" class="vh-input" />
 
   <!-- ============ MODAL ============ -->
   <div id="modal" class="modal hidden">

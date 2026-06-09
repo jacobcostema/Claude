@@ -294,3 +294,9 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 18px 16px; }
 @keyframes pop { from { transform: translate(-50%, 12px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
 
 .fullimg { width: 100%; border-radius: 14px; }
+
+/* File input kept in the DOM (not display:none) so iOS reliably opens the picker. */
+.vh-input {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; opacity: 0;
+}
