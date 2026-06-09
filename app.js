@@ -529,7 +529,7 @@ function openManagePlayers() {
     const rm = e.target.closest("[data-removeplayer]");
     if (mk) {
       currentPlayerId = mk.dataset.makecurrent; save(K_CURRENT, currentPlayerId);
-      renderAll(); toast("That's you ✔"); openManagePlayers();
+      renderAll(); toast("That's you ✔"); hideModal();
     } else if (rm) {
       const id = rm.dataset.removeplayer;
       const p = players.find((x) => x.id === id);
