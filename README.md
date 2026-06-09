@@ -12,14 +12,21 @@ back to **local mode** (data per-phone) so it still works for testing.
 
 ## 🔗 The link to send players
 
-Once deployed, the app is live at:
+Once Pages is turned on (one-time, below), the app is live at:
 
 ```
 https://jacobcostema.github.io/Claude/
 ```
 
-(Published automatically by GitHub Actions on every push — see
-`.github/workflows/deploy.yml`.)
+### Turn on hosting (one-time, ~30 seconds — only the repo owner can do this)
+1. Open the repo on GitHub → **Settings** → **Pages** (left sidebar).
+2. Under **Build and deployment → Source**, choose **Deploy from a branch**.
+3. **Branch:** pick `claude/player-accountability-tracker-sa2b1k`, folder **`/ (root)`**, then **Save**.
+4. Wait ~1 minute, refresh the Pages settings page — it'll show the live URL above.
+
+After that, every push to the branch republishes automatically. (GitHub's
+automation isn't permitted to enable Pages for you the first time, which is why
+this one click is manual.)
 
 ## ⚙️ One-time setup to turn on the shared leaderboard (~5 min)
 
@@ -75,4 +82,4 @@ to keep it open only to your group, or add Firebase Anonymous Auth and require
 - `styles.css` — mobile-first dark theme
 - `app.js` — logic + data layer (Firestore with localStorage fallback)
 - `config.js` — paste your Firebase keys here
-- `.github/workflows/deploy.yml` — auto-publish to GitHub Pages
+- `.nojekyll` — tells GitHub Pages to serve files as-is
