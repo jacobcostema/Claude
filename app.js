@@ -23,9 +23,9 @@ const CATEGORIES = [
   { id: "pre_meal",  name: "Pre-Training Meal",  icon: "🍳", points: 10, requirePhoto: true, perDay: 1 },
   { id: "post_meal", name: "Post-Training Meal", icon: "🍗", points: 10, requirePhoto: true, perDay: 1 },
   { id: "workout",   name: "Workout Session",    icon: "💪", points: 15, requirePhoto: true, perDay: 1 },
-  { id: "protein",   name: "Protein Intake",     icon: "🥩", points: 10, requirePhoto: true, perDay: 1 },
-  { id: "water",     name: "Water Bottle",       icon: "💧", points: 5,  requirePhoto: true, perDay: 4 },
-  { id: "sleep",     name: "Sleep Check-In",     icon: "😴", points: 10, requirePhoto: true, perDay: 1 },
+  { id: "protein",   name: "Protein Intake",     icon: "🥩", points: 10, requirePhoto: true, perDay: 1, note: "Goal: 1g of protein per lb of body weight" },
+  { id: "water",     name: "Water Bottle",       icon: "💧", points: 3,  requirePhoto: true, perDay: 4, note: "1 log = one 32 oz bottle finished" },
+  { id: "sleep",     name: "Sleep Check-In",     icon: "😴", points: 10, requirePhoto: true, perDay: 1, note: "7.5 hr minimum — screenshot your sleep tracker or phone bedtime/alarm" },
 ];
 const CAT_BY_ID = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]));
 
@@ -205,6 +205,7 @@ function renderCategories() {
         <span class="cat-icon">${c.icon}</span>
         <span class="cat-name">${c.name}</span>
         <span class="cat-pts">+${c.points} pts${c.perDay > 1 ? ` ×${c.perDay}` : ""}</span>
+        ${c.note ? `<span class="cat-note">${escapeHtml(c.note)}</span>` : ""}
         <span class="cat-count">${countLabel}</span>
       </button>`;
   }).join("");
@@ -335,6 +336,7 @@ function openConfirmModal(cat, dataUrl) {
   $("#modalBody").innerHTML = `
     <h3>${cat.icon} ${escapeHtml(cat.name)}</h3>
     <p class="hint">Confirm your proof to bank <b>+${cat.points} points</b>.</p>
+    ${cat.note ? `<p class="cat-note-modal">📌 ${escapeHtml(cat.note)}</p>` : ""}
     <img class="modal-preview" src="${dataUrl}" alt="preview" />
     <button class="btn btn-primary" id="confirmEntry">Log it · +${cat.points} pts</button>`;
   showModal();

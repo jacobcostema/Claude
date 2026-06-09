@@ -56,8 +56,13 @@ photos and leaderboard.
 | 🍗 Post-Training Meal| 10     | 1       | ✅ |
 | 💪 Workout Session   | 15     | 1       | ✅ |
 | 🥩 Protein Intake    | 10     | 1       | ✅ |
-| 💧 Water Bottle      | 5      | 4       | ✅ |
+| 💧 Water Bottle      | 3      | 4       | ✅ |
 | 😴 Sleep Check-In    | 10     | 1       | ✅ |
+
+**Category rules (shown as subnotes in the app):**
+- 🥩 **Protein** — goal is 1g of protein per lb of body weight.
+- 💧 **Water** — one log = one finished 32 oz bottle (4/day ≈ a gallon).
+- 😴 **Sleep** — 7.5 hr minimum; proof = a screenshot of a sleep tracker or the phone's bedtime/alarm screen.
 
 Edit the `CATEGORIES` array at the top of `app.js` to change points, add
 categories, set per-day limits, or toggle the photo requirement.
