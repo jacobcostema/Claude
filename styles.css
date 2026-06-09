@@ -17,13 +17,20 @@
   --danger: #f87171;
   --radius: 16px;
   --maxw: 560px;
+  --font-display: "Graduate", "Oswald", Georgia, serif;  /* collegiate block */
+  --font-body: "Oswald", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
+
+/* Force OS form controls / highlights onto ONU colors (no system blue) */
+html { accent-color: var(--purple); }
+::selection { background: var(--accent); color: #2a1247; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
   padding-bottom: 84px;
@@ -40,7 +47,7 @@ body {
   padding: 14px 16px 10px;
 }
 .header-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; max-width: var(--maxw); margin: 0 auto; }
-.logo { font-size: 20px; margin: 0; font-weight: 800; letter-spacing: -0.5px; color: var(--accent); }
+.logo { font-family: var(--font-display); font-size: 21px; margin: 0; font-weight: 400; letter-spacing: 0.5px; color: var(--accent); }
 .player-switch { display: flex; align-items: center; gap: 6px; }
 .player-switch select {
   background: var(--card-2);
@@ -70,8 +77,8 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 16px; }
 .tab.active { display: block; }
 @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-.section-title { font-size: 18px; margin: 4px 0 2px; }
-.subsection-title { font-size: 14px; color: var(--muted); margin: 24px 0 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.section-title { font-family: var(--font-display); font-weight: 400; font-size: 20px; letter-spacing: 0.5px; margin: 4px 0 2px; }
+.subsection-title { font-family: var(--font-display); font-size: 14px; color: var(--muted); margin: 24px 0 10px; text-transform: uppercase; letter-spacing: 1px; }
 .hint { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
 
 /* ---------- Category grid ---------- */
@@ -105,7 +112,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 16px; }
   margin-bottom: 8px;
 }
 .progress-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
-.progress-score { font-size: 30px; font-weight: 800; }
+.progress-score { font-family: var(--font-display); font-size: 32px; font-weight: 400; }
 .progress-score small { font-size: 14px; color: var(--muted); font-weight: 600; }
 .progress-pct { color: var(--good); font-weight: 700; }
 .bar { height: 12px; background: var(--bg-soft); border-radius: 99px; overflow: hidden; }
@@ -140,13 +147,13 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 16px; }
   padding: 12px 14px;
 }
 .lb-row.me { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
-.lb-rank { font-size: 18px; font-weight: 800; width: 30px; text-align: center; }
+.lb-rank { font-family: var(--font-display); font-size: 18px; font-weight: 400; width: 30px; text-align: center; }
 .lb-row:nth-child(1) .lb-rank { color: var(--gold); }
 .lb-row:nth-child(2) .lb-rank { color: var(--silver); }
 .lb-row:nth-child(3) .lb-rank { color: var(--bronze); }
 .lb-name { flex: 1; font-weight: 700; }
 .lb-name small { display: block; color: var(--muted); font-weight: 500; font-size: 12px; }
-.lb-pts { font-weight: 800; font-size: 18px; }
+.lb-pts { font-family: var(--font-display); font-weight: 400; font-size: 20px; }
 .lb-pts small { font-size: 12px; color: var(--muted); font-weight: 600; }
 
 /* ---------- Breakdown ---------- */
@@ -200,7 +207,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 16px; }
   animation: slideUp 0.25s ease;
 }
 @keyframes slideUp { from { transform: translateY(40px); opacity: 0.6; } to { transform: none; opacity: 1; } }
-.modal h3 { margin: 0 0 4px; }
+.modal h3 { font-family: var(--font-display); font-weight: 400; letter-spacing: 0.5px; margin: 0 0 4px; }
 .modal-preview { width: 100%; border-radius: 12px; margin: 12px 0; background: var(--bg-soft); }
 .field { margin: 12px 0; }
 .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
