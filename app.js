@@ -26,6 +26,7 @@ const CATEGORIES = [
   { id: "protein",   name: "Protein Intake",     icon: "🥩", points: 10, requirePhoto: true, perDay: 1, note: "Goal: 1g of protein per lb of body weight" },
   { id: "water",     name: "Water Bottle",       icon: "💧", points: 3,  requirePhoto: true, perDay: 4, note: "1 log = one 32 oz bottle finished" },
   { id: "sleep",     name: "Sleep Check-In",     icon: "😴", points: 10, requirePhoto: true, perDay: 1, allowGallery: true, note: "7.5 hr minimum — screenshot your sleep tracker or phone bedtime/alarm" },
+  { id: "ball_touches", name: "Touches with Ball", icon: "⚽", points: 12, requirePhoto: true, perDay: 1 },
 ];
 const CAT_BY_ID = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]));
 
