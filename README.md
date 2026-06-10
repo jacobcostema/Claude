@@ -58,7 +58,7 @@ photos and leaderboard.
 | 🥩 Protein Intake    | 10     | 1       | ✅ |
 | 💧 Water Bottle      | 3      | 4       | ✅ |
 | 😴 Sleep Check-In    | 10     | 1       | ✅ |
-| ⚽ Touches with Ball | 12     | 1       | ✅ |
+| 🏐 Touches with Ball | 12     | 1       | ✅ |
 
 **Category rules (shown as subnotes in the app):**
 - 🥩 **Protein** — goal is 1g of protein per lb of body weight.
