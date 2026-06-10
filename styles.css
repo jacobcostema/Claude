@@ -307,10 +307,10 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 18px 16px; }
 .ticker.hidden { display: none; }
 .ticker-track { display: inline-flex; align-items: center; white-space: nowrap; animation: ticker 26s linear infinite; will-change: transform; }
 .ticker:active .ticker-track { animation-play-state: paused; }
-.ticker-item { display: inline-flex; align-items: center; gap: 7px; padding: 9px 14px; font-size: 12.5px; }
+.ticker-item { display: inline-flex; align-items: center; gap: 7px; padding: 9px 14px; font-size: 12.5px; color: #ffffff; }
 .ticker-item .ti-ic { font-size: 14px; }
 .ticker-item .ti-who { font-weight: 700; color: var(--accent-2); }
-.ticker-item .ti-when { color: var(--muted); }
+.ticker-item .ti-when { color: #d8cdec; }
 .ticker-sep { color: var(--line); padding: 0 2px; }
 @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) {
@@ -327,8 +327,8 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 18px 16px; }
 .how-card summary::-webkit-details-marker { display: none; }
 .how-card summary::after { content: "+"; color: var(--muted); font-size: 19px; line-height: 1; }
 .how-card[open] summary::after { content: "–"; }
-.how-card ul { margin: 0 0 14px; padding-left: 18px; color: var(--muted); font-size: 13px; line-height: 1.65; }
-.how-card ul b { color: var(--text); font-weight: 600; }
+.how-card ul { margin: 0 0 14px; padding-left: 18px; color: #ffffff; font-size: 13px; line-height: 1.65; }
+.how-card ul b { color: var(--accent-2); font-weight: 700; }
 
 /* ---------- Group roster ---------- */
 .group-roster { display: flex; flex-direction: column; gap: 10px; }
@@ -339,7 +339,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 18px 16px; }
 }
 .grp-count { background: rgba(245,184,32,0.15); color: var(--accent); border-radius: 99px; font-size: 11px; padding: 1px 9px; font-family: var(--font-body); font-weight: 600; }
 .grp-members { display: flex; flex-wrap: wrap; gap: 6px; }
-.grp-chip { background: var(--card-2); border: 1px solid var(--line); border-radius: 99px; padding: 5px 11px; font-size: 12.5px; font-weight: 500; }
+.grp-chip { background: var(--card-2); border: 1px solid var(--line); border-radius: 99px; padding: 5px 11px; font-size: 12.5px; font-weight: 500; color: #ffffff; }
 .grp-chip.mine { background: rgba(245,184,32,0.16); border-color: rgba(245,184,32,0.55); color: var(--accent-2); font-weight: 700; }
 
 /* File input kept in the DOM (not display:none) so iOS reliably opens the picker. */
