@@ -78,7 +78,10 @@ async function initStore() {
         fsMod.collection(db, "players"),
         (snap) => {
           players = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-          maybeSeedRoster();
+          // Auto-seed intentionally disabled: Firestore's initial cached (empty)
+          // snapshot was re-seeding the roster on every new device, creating
+          // duplicate players. The roster is established; use the manual
+          // "Load roster" button for a genuine reset instead.
           applyGroupAssignments();
           renderAll();
         },
@@ -128,13 +131,19 @@ let rosterBusy = false;
 async function loadDefaultRoster() {
   if (rosterBusy) return;
   rosterBusy = true;
-  const seen = new Set(players.map((p) => p.name.toLowerCase()));
   let added = 0, skipped = 0, firstId = null;
   try {
+    // Dedupe against a FRESH read of the database (not the possibly-stale
+    // in-memory list) so this can never create duplicate players.
+    let seen = new Set(players.map((p) => p.name.toLowerCase()));
+    if (fb) {
+      const snap = await fb.getDocs(fb.collection(fb.db, "players"));
+      seen = new Set(snap.docs.map((d) => (d.data().name || "").toLowerCase()));
+    }
     for (const name of DEFAULT_ROSTER) {
       if (seen.has(name.toLowerCase())) { skipped++; continue; }
       seen.add(name.toLowerCase());
-      const id = await storeAddPlayer(name);
+      const id = await storeAddPlayer(name, GROUP_ASSIGNMENTS[name] || "");
       if (!firstId) firstId = id;
       added++;
     }
